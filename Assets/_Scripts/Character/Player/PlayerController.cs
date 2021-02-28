@@ -52,7 +52,6 @@ public class PlayerController : MonoBehaviour
         montuAnim.SetBool("isGrounded", grounded);
         montuAnim.SetFloat("verticalSpeed", montu.velocity.y);
 
-
         float move = joystick.Horizontal;
         montuAnim.SetFloat("speed", Mathf.Abs(move));
 
