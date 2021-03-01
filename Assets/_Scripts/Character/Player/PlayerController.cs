@@ -1,22 +1,25 @@
 using UnityEngine;
 using System.Collections;
 
-public class PlayerController : MonoBehaviour 
+public class PlayerController : MonoBehaviour
 {
-	//move var
+    //move var
     public float maxSpeed;
 
+    public Joystick joystick;
+
     //jump var
-	bool grounded = false;
-	float groundCheckerRadius = 0.2f;
+    bool grounded = false;
+    bool isJumping = false;
+    float groundCheckerRadius = 0.2f;
     public Transform groundCheck;
     public LayerMask groundLayer;
     public float jumpHeight;
 
 
-	Rigidbody2D montu;
-	Animator montuAnim;
-	bool facingRight;
+    Rigidbody2D montu;
+    Animator montuAnim;
+    bool facingRight;
 
     //shoot var
     public GameObject bullet;
@@ -24,38 +27,32 @@ public class PlayerController : MonoBehaviour
     public float fireRate = 0.05f;
     float nextFire = 0.0f;
 
-	void Start () 
-	{
-		montu = GetComponent<Rigidbody2D> ();
-		montuAnim = GetComponent<Animator> ();
+    void Start()
+    {
+        montu = GetComponent<Rigidbody2D>();
+        montuAnim = GetComponent<Animator>();
 
-		facingRight = true;
-	}
+        facingRight = true;
+    }
 
     void Update()
     {
-        if (grounded && Input.GetAxis("Jump")>0)
+        if (grounded && isJumping)
         {
             grounded = false;
+            isJumping = false;
             montuAnim.SetBool("isGrounded", grounded);
             montu.AddForce(new Vector2(0, jumpHeight));
         }
-
-        //player shoots
-        if (Input.GetAxisRaw("Fire1") > 0)
-        {
-            fireBullet();
-        }
     }
 
-	void FixedUpdate ()
+    void FixedUpdate()
     {
         grounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckerRadius, groundLayer);
         montuAnim.SetBool("isGrounded", grounded);
         montuAnim.SetFloat("verticalSpeed", montu.velocity.y);
 
-
-        float move = Input.GetAxis("Horizontal");
+        float move = joystick.Horizontal;
         montuAnim.SetFloat("speed", Mathf.Abs(move));
 
         montu.velocity = new Vector2(move * maxSpeed, montu.velocity.y);
@@ -71,18 +68,23 @@ public class PlayerController : MonoBehaviour
 
     }
 
-	void flip()
-	{
-		facingRight = !facingRight;
+    void flip()
+    {
+        facingRight = !facingRight;
 
-		Vector3 theScale = transform.localScale;
+        Vector3 theScale = transform.localScale;
 
-		theScale.x *= -1;
+        theScale.x *= -1;
 
-		transform.localScale = theScale;
-	}
+        transform.localScale = theScale;
+    }
 
-    void fireBullet()
+    public void Jump()
+    {
+        isJumping = true;
+    }
+
+    public void fireBullet()
     {
         if (Time.time > nextFire)
         {
